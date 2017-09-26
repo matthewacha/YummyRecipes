@@ -15,10 +15,37 @@ app = create_app(config_name)
 @app.route('/')
 def index():
     """
-    A sample route to show that flask is working
+    The homepage comprising signup and signin options
     """
-    return "Hello YummyRecipes!"
+    active = 'home'
+    return render_template('index.html', active=active)
 
+
+@app.route('/categories')
+def categories_list():
+    """
+    The page showing all availaible categories of recipes
+    """
+    active = 'categories_list'
+    return render_template('categories_list.html', active=active)
+
+
+@app.route('/categories/<int:id>')
+def categories_detail(id):
+    """
+    The page showing all availaible recipes in a given category
+    """
+    return render_template('categories_detail.html')
+
+
+@app.route('/categories/<int:id>/recipe/<int:recipe_id>')
+def recipe_detail(id, recipe_id):
+    """
+    The page showing the details of a single recipe 
+    including all steps
+    """
+    return render_template('categories_detail.html')
+    
 
 if __name__ == '__main__':
     app.run()

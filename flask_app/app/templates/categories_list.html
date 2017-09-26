@@ -1,0 +1,42 @@
+{% extends 'base.html' %} {% block title %}-categories{% endblock %} {% block content %}
+<div id='content' class="container">
+    <div class="row">
+        <div class="col">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-10">
+                        <h2 class="page-title">Recipe Categories</h2>
+                    </div>
+                    <div class="col-12 col-md-2 page-title">
+                        <h2><button class="btn">Add Category</button></h2>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <th scope="row">1.</th>
+                            <td class="col-10"><a href="./categories_detail_cakes.html">Cakes</a></td>
+                            <td class="col-1"><button class="btn btn-primary">Edit</button></td>
+                            <td class="col-1"><button class="btn btn-danger">Delete</button></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2.</th>
+                            <td class="col-10"><a href="./categories_detail_bread.html">Bread</a></td>
+                            <td class="col-1"><button class="btn btn-primary">Edit</button></td>
+                            <td class="col-1"><button class="btn btn-danger">Delete</button></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3.</th>
+                            <td class="col-10"><a href="./categories_detail_juice.html">Juice</a></td>
+                            <td class="col-1"><button class="btn btn-primary">Edit</button></td>
+                            <td class="col-1"><button class="btn btn-danger">Delete</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% endblock %}

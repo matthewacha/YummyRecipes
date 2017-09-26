@@ -1,0 +1,35 @@
+{% extends 'base.html' %} {% block title %}-{{ category }}{% endblock %} {% block content %}
+<div id='content' class="container">
+    <div class="row">
+        <div class="col">
+            <div class="container">
+                <div class="row">
+                    <div class="col-12 col-md-10">
+                        <h2 class="page-title">Category: <small class="text-muted">Bread</small></h2>
+                    </div>
+                    <div class="col-12 col-md-2 page-title">
+                        <h2><button class="btn">Add Recipe</button></h2>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <tbody>
+                        <tr>
+                            <th scope="row">1.</th>
+                            <td class="col-12"><a href="./recipe_detail_brown_bread.html">Brown bread Recipe</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2.</th>
+                            <td class="col-12"><a href="./recipe_detail_whole_wheat_bread.html">Whole wheat bread recipe</a></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3.</th>
+                            <td class="col-12"><a href="./recipe_detail_white_bread.html">White bread recipe</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
