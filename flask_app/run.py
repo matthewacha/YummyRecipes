@@ -44,7 +44,7 @@ def recipe_detail(id, recipe_id):
     The page showing the details of a single recipe 
     including all steps
     """
-    return render_template('categories_detail.html')
+    return render_template('recipe_detail.html')
     
 
 if __name__ == '__main__':
