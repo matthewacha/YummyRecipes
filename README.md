@@ -19,6 +19,7 @@ _Other dependecies can be found in requirements.txt in this repo_
 # Important Links
 - [Pivotal Tracker board](https://www.pivotaltracker.com/n/projects/2113582) for project
 - [Github pages demo](https://tinitto.github.io/YummyRecipes/)
+- [Heroku demo](https://yummy-recipes.herokuapp.com/)
 
 ## How to run flask application
 1. Clone the repository to your computer
