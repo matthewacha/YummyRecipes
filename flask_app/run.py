@@ -38,7 +38,7 @@ def categories_detail(id):
     return render_template('categories_detail.html')
 
 
-@app.route('/categories/<int:id>/recipe/<int:recipe_id>')
+@app.route('/categories/<int:id>/recipes/<int:recipe_id>')
 def recipe_detail(id, recipe_id):
     """
     The page showing the details of a single recipe 
