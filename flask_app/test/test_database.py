@@ -44,6 +44,16 @@ class DatabaseTest(unittest.TestCase):
         self.assertIn(user.key, self.db.user_keys)
         self.assertEqual(user, self.db.users[user.key])
 
+    def test_get_user(self):
+        """A user can be got by user_key"""
+        user = User(**self.user_data, key=1)
+        user.save(self.db)
+        user_from_db = self.db.get_user(user.key)
+        self.assertEqual(user, user_from_db)
+        non_existent_key = 3
+        self.assertIsNone(self.db.get_user(non_existent_key))
+        self.assertRaises(TypeError, self.db.get_user, 'user_key should be int')
+
     # key should not be negative or zero
     # key should not exist already
 
