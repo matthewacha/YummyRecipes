@@ -50,6 +50,20 @@ class UtilitiesTests(unittest.TestCase):
         self.assertRaises(TypeError, utilities.check_password_format, 'password',
                         '34r')
 
+    def test_replace_value_in_dict(self):
+        """
+        replace_value_in_dict returns a new dict with value for key passed changed
+        replace_value_in_dict raises TypeError if dict passed in is not dict
+        replace_value_in_dict raises KeyError if key in dict is non existent
+        """
+        original_dict = {'title': 'foo'}
+        new_dict = utilities.replace_value_in_dict(original_dict, 'title', 'bar')
+        self.assertEqual(new_dict['title'], 'bar')
+        self.assertRaises(TypeError, utilities.replace_value_in_dict, the_dict='a string',
+                          key='title', new_value='bar')
+        self.assertRaises(KeyError, utilities.replace_value_in_dict, the_dict=original_dict,
+                          key='random', new_value='bar')
+
 
 if __name__ == '__main__':
     unittest.main()

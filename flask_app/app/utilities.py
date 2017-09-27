@@ -45,3 +45,18 @@ def check_password_format(password, min_length=6):
         if len(password) < min_length:
             raise ValueError("Your password is too short")
         return True
+
+def replace_value_in_dict(the_dict, key, new_value):
+    """Returns a new dict with value replaced"""
+    if not isinstance(the_dict, dict):
+        raise TypeError('the_dict should be a dict')
+
+    try:
+        dict_copy = the_dict
+        # this causes function to raise KeyError if key does
+        # not exist
+        old_value = dict_copy[key]
+        dict_copy[key] = new_value
+        return dict_copy
+    except KeyError:
+        raise KeyError('The key does not exist in the_dict')

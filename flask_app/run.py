@@ -109,12 +109,29 @@ def signin():
     return redirect(url_for('index'))
 
 
-@app.route('/user/<int:user_key>/categories')
+@app.route('/user/<int:user_key>/categories', methods=['GET', 'POST'])
 def categories_list(user_key):
     """
     The page showing all availaible categories of recipes
+    GET: Show all user's categories
+    POST: Create a new category
     """
     active = 'categories_list'
+    error = None
+    editable = False
+    category_list = None
+    user = None
+    # try to get the user
+    try:
+        user = db.get_user(int(user_key))
+    except (KeyError, TypeError):
+        error = "User does not exist"
+    # try to get the logged in user
+    logged_in_user = controller.get_logged_in_user_key()
+    if logged_in_user == user and logged_in_user is not None:
+        # a reigstered user should be able to edit/create categories
+        editable = True
+    # get the user's categories and save them to category_list
     return render_template('categories_list.html', active=active)
 
 

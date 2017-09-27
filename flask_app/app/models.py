@@ -2,7 +2,7 @@
 This module holds the pretend-models for the application
 """
 from random import randint
-from app.utilities import check_type
+from app.utilities import check_type, check_email_format
 
 def binary_search(character, list_of_characters, position=0):
     """
@@ -36,11 +36,32 @@ class Database:
         self.recipes = {}
         self.recipe_categories = {}
         self.recipe_steps = {}
-        self.user_keys = []
+        self._user_keys = []
         self.user_email_key_map = {}
-        self.recipe_keys = []
-        self.recipe_category_keys = []
-        self.recipe_step_keys = []
+        self._recipe_keys = []
+        self._recipe_category_keys = []
+        self.recipe_category_name_key_map = {}
+        self._recipe_step_keys = []
+
+    @property
+    def recipe_category_keys(self):
+        self._recipe_category_keys =  list(set(self._recipe_category_keys))
+        return self._recipe_category_keys
+
+    @property
+    def recipe_keys(self):
+        self._recipe_keys =  list(set(self._recipe_keys))
+        return self._recipe_keys
+
+    @property
+    def recipe_step_keys(self):
+        self._recipe_step_keys =  list(set(self._recipe_step_keys))
+        return self._recipe_step_keys
+
+    @property
+    def user_keys(self):
+        self._user_keys =  list(set(self._user_keys))
+        return self._user_keys
 
     def get_next_key(self, type_of_object):
         """Gets the next key basing on the type of object"""
@@ -82,11 +103,6 @@ class Database:
     
     def create_user(self, user_data):
         """Creates a new user and adds the user to self.users"""
-        # get the last user key and add 1 (use self.get_next_key(User))
-        # create a new user with that key
-        # add them to the dict of users in self.users and
-        # update the set of user keys and the user_email_key_map
-        #  (call the new user's save method)
         user_key = self.get_next_key(User)
         try:
             user = User(**user_data, key=user_key)
@@ -119,24 +135,16 @@ class Database:
                 return None
             return self.get_user(user_key)
         
-    def create_recipe_category(self, recipe_category_data):
-        """
-        Creates a new recipe category and
-        adds it to self.recipe_categories
-        """
-        # get the last recipe category key and add 1 
-        # (use self.get_next_key(RecipeCategory))
-        # create a new recipe category with that key
-        # add them to the dict of recipe categories 
-        # in self.recipe_categories and
-        # update the set of recipe category keys 
-        # (call the new recipe category's save method)
-        pass
-
     def get_recipe_category(self, recipe_category_key):
         """
         Returns the RecipeCategory object if it exists
         or None if it doesn't
+        """
+        pass
+
+    def get_all_categories_for_user(self, user_key):
+        """
+        Returns a list of the user's recipe categories 
         """
         pass
 
@@ -183,13 +191,28 @@ class User:
     Any user who interfaces with the app falls in this category
     """
     def __init__(self, key, first_name, last_name, email, password):
-        self.key = key
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.password = password
+        if check_type(key, int):
+            self.key = key
+        if check_type(first_name, str):
+            self.first_name = first_name
+        if check_type(last_name, str):
+            self.last_name = last_name
+        if check_type(email, str):
+            if check_email_format(email):
+                self.email = email
+        if check_type(password, str):
+            self.password = password
         # a list of recipe_category keys
-        self.recipe_categories = []
+        self._recipe_categories = []
+
+    @property
+    def recipe_categories(self):
+        self._recipe_categories = list(set(self._recipe_categories))
+        return self._recipe_categories
+
+    def add_recipe_category(self, key):
+        """Adds a new recipe category key to self._recipe_categories"""
+        self._recipe_categories.append(key)
 
     def save(self, database):
         """Saves user to the database appropriately"""
@@ -199,7 +222,29 @@ class User:
             database.user_keys.append(self.key)
             database.users[self.key] = self
             database.user_email_key_map[self.email] = self.key
-        pass
+
+    def create_recipe_category(self, database, recipe_category_data):
+        """
+        Creates a new recipe category and
+        adds it to database.recipe_categories
+        """
+        if check_type(database, Database):
+            # get the last recipe category key and add 1 
+            key = database.get_next_key(RecipeCategory)
+            try:
+                # save user in database
+                self.save(database)
+                category = RecipeCategory(**recipe_category_data, key=key, user=self.key)
+                category.save(database)
+            except TypeError:
+                return None
+            return category
+
+        # create a new recipe category with that key
+        # add them to the dict of recipe categories 
+        # in self.recipe_categories and
+        # update the set of recipe category keys 
+        # (call the new recipe category's save method)
 
 
 class RecipeCategory:
@@ -209,13 +254,19 @@ class RecipeCategory:
     one user
     """
     def __init__(self, key, name, description, user):
-        self.key = key
-        self.name = name
-        self.description = description
+        if check_type(key, int):
+            self.key = key
+        if check_type(name, str):
+            if len(name.strip()) == 0:
+                raise ValueError('name should be a non-empty string')
+            self.name = name
+        if check_type(description, str):
+            self.description = description
         # the creator's key. It does not change
-        self.user = user
+        if check_type(user, int):
+            self.user = user
         # the list of child recipe keys
-        self.recipes = set()
+        self.recipes = []
 
     def delete(self, database):
         """Deletes this category of recipes and all recipes in it"""
@@ -237,11 +288,19 @@ class RecipeCategory:
     def save(self, database):
         """Saves recipe category in db and in user"""
         # add self's key to set of recipe categories of user
-        # add self's key to set of db's recipe_category_keys
-        # Add self to db.recipe_categories dict with key as self.key
-        pass
-    
-
+        if check_type(database, Database):
+            try:
+                user = database.users[self.user]
+                user.recipe_categories.append(self.key)
+            except KeyError:
+                raise KeyError('User should be saved in db first')
+            # add self's key to set of db's recipe_category_keys
+            database.recipe_category_keys.append(self.key)
+            # remove duplication in the list above
+            # Add self to db.recipe_categories dict with key as self.key
+            database.recipe_categories[self.key] = self
+            # Add self's name and key in db's recipe_category_name_key_map
+            database.recipe_category_name_key_map[self.name] = self.key
 
 
 class Recipe:
