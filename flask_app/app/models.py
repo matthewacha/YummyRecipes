@@ -240,11 +240,19 @@ class User:
                 return None
             return category
 
-        # create a new recipe category with that key
-        # add them to the dict of recipe categories 
-        # in self.recipe_categories and
-        # update the set of recipe category keys 
-        # (call the new recipe category's save method)
+    def get_all_recipe_categories(self, database):
+        """Returns all the user's recipe categories"""
+        if check_type(database, Database):
+            local_recipe_categories = []
+            for category in self.recipe_categories:
+                try:
+                    recipe_category_object = database.recipe_categories[category]
+                except KeyError:
+                    self.recipe_categories.remove(category)
+                else:
+                    local_recipe_categories.append(recipe_category_object)
+
+            return local_recipe_categories
 
 
 class RecipeCategory:
@@ -253,7 +261,7 @@ class RecipeCategory:
     Each RecipeCategory is created and can be deleted by
     one user
     """
-    def __init__(self, key, name, description, user):
+    def __init__(self, key, name, user, description=''):
         if check_type(key, int):
             self.key = key
         if check_type(name, str):

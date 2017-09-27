@@ -27,13 +27,13 @@ class DatabaseTest(unittest.TestCase):
         self.assertEqual(self.db.get_next_key(Recipe), 1)
         self.assertEqual(self.db.get_next_key(RecipeCategory), 1)
         self.assertEqual(self.db.get_next_key(RecipeStep), 1)
-        self.db.user_keys += [1,2,3]
+        self.db._user_keys += [1,2,3]
         self.assertEqual(self.db.get_next_key(User), 4)
-        self.db.recipe_keys += [1,2,3,7]
+        self.db._recipe_keys += [1,2,3,7]
         self.assertEqual(self.db.get_next_key(Recipe), 8)
-        self.db.recipe_category_keys += [1,2,3, 4]
+        self.db._recipe_category_keys += [1,2,3, 4]
         self.assertEqual(self.db.get_next_key(RecipeCategory), 5)
-        self.db.recipe_step_keys += [1,2,3,9]
+        self.db._recipe_step_keys += [1,2,3,9]
         self.assertEqual(self.db.get_next_key(RecipeStep), 10)
         self.assertRaises(TypeError, self.db.get_next_key, 2)
 

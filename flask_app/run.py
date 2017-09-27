@@ -119,20 +119,41 @@ def categories_list(user_key):
     active = 'categories_list'
     error = None
     editable = False
-    category_list = None
+    recipe_categories = []
+    user_details = None
     user = None
     # try to get the user
     try:
         user = db.get_user(int(user_key))
+        if user:
+            user_details = dict(first_name=user.first_name, email=user.email,
+            last_name=user.last_name, key=user.key)
+            recipe_categories = user.get_all_recipe_categories(db)
+            # try to get the logged in user
+            logged_in_user_key = controller.get_logged_in_user_key()
+            if logged_in_user_key == user.key:
+                # a registered user should be able to edit/create categories
+                editable = True
     except (KeyError, TypeError):
         error = "User does not exist"
-    # try to get the logged in user
-    logged_in_user = controller.get_logged_in_user_key()
-    if logged_in_user == user and logged_in_user is not None:
-        # a reigstered user should be able to edit/create categories
-        editable = True
-    # get the user's categories and save them to category_list
-    return render_template('categories_list.html', active=active)
+
+    if request.method == 'POST' and not error:
+        # Get the form data
+        try:
+            form_data = controller.process_form_data(dict(request.form))
+            print(form_data)
+        except AttributeError:
+            error = "Invalid form input"
+        else:
+            # Try to create a new recipe category and add it to recipe category list
+            new_category = user.create_recipe_category(db, form_data)
+            print(new_category, user)
+            if new_category:
+                recipe_categories.append(new_category)
+
+    return render_template('categories_list.html', active=active, error=error,
+                            user_details=user_details, editable=editable,
+                            recipe_categories=recipe_categories)
 
 
 @app.route('/categories/<int:id>')

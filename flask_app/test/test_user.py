@@ -95,8 +95,27 @@ class UserTest(unittest.TestCase):
         self.assertIsNone(category)
     
     def test_user_can_get_categories(self):
-        """User can get a list of their recipe categories"""
-        pass
+        """User can get a list of their recipe categories"""        
+        names = ('cakes', 'bread', 'juice')
+        # create three categories
+        created_categories = []
+        key = 2
+        # save user in db
+        self.user.save(self.db)
+        for name in names:
+            new_data = utilities.replace_value_in_dict(self.category_data, 'name', name)
+            new_category = RecipeCategory(**new_data, key=key, user=self.user.key)
+            new_category.save(self.db)
+            created_categories.append(new_category)
+            key += 1
+
+        categories = self.user.get_all_recipe_categories(self.db)
+        self.assertIsInstance(categories, list)
+        self.assertEqual(len(self.user.recipe_categories), len(categories))
+        self.assertListEqual(created_categories, categories)
+        self.assertRaises(TypeError, self.user.get_all_recipe_categories,
+                          'expected Database object not string')
+
 
     def test_user_can_delete_categories(self):
         """User can delete recipe categories"""
