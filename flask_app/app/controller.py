@@ -2,7 +2,7 @@
 This module holds functionality that connects the models to the views
 """
 from flask import session
-from models import db
+from app.models import db
 
 def process_form_data(dict_form_data):
     """ 
@@ -46,7 +46,7 @@ def add_user_to_session(user_key):
     logged in user
     """
     user = db.get_user(user_key)
-    If user is None:
+    if user is None:
         raise KeyError('User does not exist')
 
     session['user_key'] = user_key

@@ -176,14 +176,6 @@ class User:
         self.password = password
         # a list of recipe_category keys
         self.recipe_categories = []
-    
-    def login(self, request):
-        """Logs in the user"""
-        pass
-
-    def logout(self, request):
-        """Logs out the user"""
-        pass
 
     def save(self, database):
         """Saves user to the database appropriately"""
