@@ -98,11 +98,12 @@ class Database:
         returns the User object corresponding to user_key or
         None if user does not exist
         """
-        try:
-            user = self.users[user_key]
-        except KeyError:
-            return None
-        return user
+        if check_type(user_key, int):
+            try:
+                user = self.users[user_key]
+            except KeyError:
+                return None
+            return user
 
     def create_recipe_category(self, recipe_category_data):
         """
