@@ -10,7 +10,7 @@ from app.models import db
 
 config_name = os.getenv('APP_SETTINGS') or 'development'
 app = create_app(config_name)
-
+    
 
 # routes
 @app.route('/')
@@ -19,13 +19,7 @@ def index():
     The homepage comprising signup and signin options
     """
     active = 'home'
-    user = ''
-    while user != 'STOP':
-        user = input('Feed in a number\n').upper()
-        db['users'].append(user)
-
-    users = db['users']
-    return render_template('index.html', active=active, users=users)
+    return render_template('index.html', active=active)
 
 
 @app.route('/categories')
