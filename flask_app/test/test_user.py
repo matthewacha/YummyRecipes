@@ -36,6 +36,8 @@ class UserTest(unittest.TestCase):
         self.user.save(self.db)
         self.assertIn(self.user.key, self.db.user_keys)
         self.assertEqual(self.user, self.db.users[self.user.key])
+        self.assertIn(self.user.email, self.db.user_email_key_map.keys())
+        # self.assertEqual(self.user.key, self.db.user_email_key_map[self.user.email])
 
 
 

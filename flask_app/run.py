@@ -57,6 +57,58 @@ def signup():
     return redirect(url_for('index'))
 
 
+
+@app.route('/signout')
+def signout():
+    """
+    The signout route logs out the user
+    """
+    error = None
+    # remove user_key from session
+    try:
+        controller.remove_user_from_session()
+    except KeyError:
+        error = 'You are not logged in'
+    if error:
+        flash(error)
+    return redirect(url_for('index'))
+
+
+@app.route('/signin', methods=['POST'])
+def signin():
+    """
+    Logs in the user
+    """
+    error = None
+    form_data = None
+    # get request.form data
+    try:
+        form_data = controller.process_form_data(dict(request.form))
+    except AttributeError:
+        error = "Invalid form input"
+    
+    if form_data:
+        try:
+            user = db.get_user_by_email(form_data['email'])
+            if user is None:
+                raise KeyError('User non-existent')
+        except KeyError:
+            error = "User does not exist"
+        else:
+            # if user exists, check against the saved password
+            if user.password == form_data['password']:
+                # if it is the same, save username to session
+                controller.add_user_to_session(user.key)
+                flash('Login successful')
+                return redirect(url_for('categories_list',
+                                user_key=user.key))
+            else:
+                error = "Invalid password or username"
+    if error:
+        flash(error)
+    return redirect(url_for('index'))
+
+
 @app.route('/user/<int:user_key>/categories')
 def categories_list(user_key):
     """

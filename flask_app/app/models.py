@@ -37,6 +37,7 @@ class Database:
         self.recipe_categories = {}
         self.recipe_steps = {}
         self.user_keys = []
+        self.user_email_key_map = {}
         self.recipe_keys = []
         self.recipe_category_keys = []
         self.recipe_step_keys = []
@@ -84,7 +85,8 @@ class Database:
         # get the last user key and add 1 (use self.get_next_key(User))
         # create a new user with that key
         # add them to the dict of users in self.users and
-        # update the set of user keys (call the new user's save method)
+        # update the set of user keys and the user_email_key_map
+        #  (call the new user's save method)
         user_key = self.get_next_key(User)
         try:
             user = User(**user_data, key=user_key)
@@ -105,6 +107,18 @@ class Database:
                 return None
             return user
 
+    def get_user_by_email(self, email):
+        """
+        Returns a user object corresponding to the email
+        passed in or None is user does not exist
+        """
+        if check_type(email, str):
+            try:
+                user_key = self.user_email_key_map[email]
+            except KeyError:
+                return None
+            return self.get_user(user_key)
+        
     def create_recipe_category(self, recipe_category_data):
         """
         Creates a new recipe category and
@@ -184,6 +198,7 @@ class User:
         if check_type(database, Database):
             database.user_keys.append(self.key)
             database.users[self.key] = self
+            database.user_email_key_map[self.email] = self.key
         pass
 
 

@@ -43,6 +43,8 @@ class DatabaseTest(unittest.TestCase):
         self.assertIsInstance(user, User)
         self.assertIn(user.key, self.db.user_keys)
         self.assertEqual(user, self.db.users[user.key])
+        self.assertIn(user.email, self.db.user_email_key_map.keys())
+        self.assertEqual(user.key, self.db.user_email_key_map[user.email])
 
     def test_get_user(self):
         """A user can be got by user_key"""
@@ -53,6 +55,17 @@ class DatabaseTest(unittest.TestCase):
         non_existent_key = 3
         self.assertIsNone(self.db.get_user(non_existent_key))
         self.assertRaises(TypeError, self.db.get_user, 'user_key should be int')
+
+    def test_get_user_by_email(self):
+        """A user can be got by email"""
+        user = self.db.create_user(self.user_data)
+        self.assertIsInstance(user, User)
+        user_instance = self.db.get_user_by_email(user.email)
+        self.assertEqual(user, user_instance)
+        self.assertRaises(TypeError, self.db.get_user_by_email, 2)
+        
+
+
 
     # key should not be negative or zero
     # key should not exist already
