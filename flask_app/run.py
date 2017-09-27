@@ -6,6 +6,7 @@ import os
 from flask import request, redirect, url_for,\
     render_template, flash
 from app import create_app
+from app.models import db
 
 config_name = os.getenv('APP_SETTINGS') or 'development'
 app = create_app(config_name)
@@ -18,7 +19,13 @@ def index():
     The homepage comprising signup and signin options
     """
     active = 'home'
-    return render_template('index.html', active=active)
+    user = ''
+    while user != 'STOP':
+        user = input('Feed in a number\n').upper()
+        db['users'].append(user)
+
+    users = db['users']
+    return render_template('index.html', active=active, users=users)
 
 
 @app.route('/categories')
