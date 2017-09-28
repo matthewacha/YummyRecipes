@@ -5,6 +5,7 @@ This includes the tests for the User Object
 import unittest
 from app.models import Database, User, Recipe, RecipeCategory, \
 RecipeStep
+from app import utilities
 
 class DatabaseTest(unittest.TestCase):
     """
@@ -20,6 +21,13 @@ class DatabaseTest(unittest.TestCase):
             'email': 'johndoe@example.com',
             'password': 'password',
             }
+        self.user = User(**self.user_data, key=1)
+        self.category_data = {
+            'key': 1,
+            'name': 'cakes',
+            'description': 'all recipes cake!',
+            'user': self.user.key,
+        }
 
     def test_get_next_key(self):
         """The next key for each model object type can be got"""
@@ -63,6 +71,45 @@ class DatabaseTest(unittest.TestCase):
         user_instance = self.db.get_user_by_email(user.email)
         self.assertEqual(user, user_instance)
         self.assertRaises(TypeError, self.db.get_user_by_email, 2)
+
+    def test_get_recipe_category(self):
+        """A recipe category can be retrieved by key"""
+        # setup
+        self.user.save(self.db)
+        # create category
+        category = RecipeCategory(**self.category_data)
+        # save category
+        category.save(self.db)
+        # try retrieving the category
+        category_from_db = self.db.get_recipe_category(category.key)
+        self.assertEqual(category, category_from_db)
+        # try retrieving a non-existent category
+        self.assertIsNone(self.db.get_recipe_category(4))
+        # try using a non-int key
+        self.assertRaises(TypeError, self.db.get_recipe_category, 'string instead of int')
+
+    def test_delete_object(self):
+        """delete_object should be able to remove the object passed to it from the database"""
+        # setup
+        self.user.save(self.db)
+        # create category
+        category = RecipeCategory(**self.category_data)
+        # save category
+        category.save(self.db)
+        # delete category
+        self.db.delete_object(category)
+        # assert that the category object is not in self.db.recipe_categories
+        self.assertRaises(KeyError, utilities.return_value_from_dict, self.db.recipe_categories, category.key)
+        # assert that the category key is not in self.db.recipe_categories.keys
+        self.assertNotIn(category.key, self.db.recipe_category_keys)
+        # assert that the category name is not in self.db.recipe_categories_name_key_map
+        self.assertNotIn(category.name, self.db.recipe_category_name_key_map.keys())
+        # try to delete a non existent object by deleting category again
+        self.assertRaises(KeyError, self.db.delete_object, category)
+        # try to delete an object of a type that does not exist in database
+        self.assertRaises(TypeError, self.db.delete_object, 2)
+
+
         
 
 

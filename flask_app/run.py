@@ -120,7 +120,7 @@ def categories_list(user_key):
     error = None
     editable = False
     recipe_categories = []
-    user_details = None
+    user_details = {}
     user = None
     # try to get the user
     try:
@@ -141,13 +141,11 @@ def categories_list(user_key):
         # Get the form data
         try:
             form_data = controller.process_form_data(dict(request.form))
-            print(form_data)
         except AttributeError:
             error = "Invalid form input"
         else:
             # Try to create a new recipe category and add it to recipe category list
             new_category = user.create_recipe_category(db, form_data)
-            print(new_category, user)
             if new_category:
                 recipe_categories.append(new_category)
 
@@ -155,12 +153,83 @@ def categories_list(user_key):
                             user_details=user_details, editable=editable,
                             recipe_categories=recipe_categories)
 
+# Not yet implemented
 
-@app.route('/categories/<int:id>')
-def categories_detail(id):
+@app.route('user/<int:user_key>/categories/<int:category_key>')
+def categories_detail(user_key, category_key):
     """
-    The page showing all availaible recipes in a given category
+    The page showing all availaible recipes in a given category (GET)
+    Also handles PUT and DELETE of a recipe category
+    Allows creation of new recipes under this category(POST)
     """
+    error = None
+    editable = False
+    recipe_category_details = {}
+    recipe_category = None
+    recipes = []
+    user = None
+    try:
+        recipe_category = db.get_recipe_category(category_key)
+        if recipe_category and user_key == recipe_category.user:
+            if user_key == controller.get_logged_in_user_key():
+                editable = True
+        else:
+            raise ValueError('Wrong params in url')
+    except (ValueError, KeyError, AttributeError):
+        error = "Recipe Category does not exist"  
+
+    if request.method == 'GET':
+        method = request.args.get('_method') or None
+        if editable and method == 'delete' and recipe_category:
+            # attempt to delete the recipe_category
+            recipe_category.delete(db)
+            flash('Delete successful')
+            return redirect(url_for('categories_list', user_key=user_key))
+        
+        if editable and method == 'put' and recipe_category:
+            # get args data
+            success = None
+            description = request.args.get('description') or None
+            name = request.args.get('name') or None
+            if name:
+                # update the name
+                recipe_category.set_name(str(name))
+                success = "Update successful"
+            if description:
+                # update the description
+                recipe_category.set_description(str(description))
+                success = "Update successful"
+            flash(success)            
+        
+        if not error:
+            recipe_category_details = dict(name=recipe_category.name,
+                            description=recipe_category.description, 
+                            key=recipe_category.key)
+            recipes = list(recipe_category.get_all_recipes(db))
+        return render_template('categories_detail.html', 
+                recipe_category_details=recipe_category_details, user_key=user_key,
+                 editable=editable, error=error, recipes=recipes, category_key=category_key)
+
+    if request.method == 'POST' and not error:
+        # get form data
+        try:
+            form_data = controller.process_form_data(dict(request.form))
+        except AttributeError:
+            error = "Invalid form input"
+            flash(error)
+    
+        if form_data:
+            try:
+                recipe_category.add_recipe(**form_data, database=db)
+            except ValueError:
+                error = "Invalid form input for recipe"
+                flash(error)
+            else:
+                flash('Recipe has been added successfully')
+
+            return redirect(url_for('categories_detail', user_key=user_key,
+                                category_key=category_key))
+  
     return render_template('categories_detail.html')
 
 
@@ -168,7 +237,9 @@ def categories_detail(id):
 def recipe_detail(id, recipe_id):
     """
     The page showing the details of a single recipe 
-    including all steps
+    including all steps (GET)
+    It also handles PUT and DELETE of the recipe
+    It also handles POST for creation of new RecipeSteps
     """
     return render_template('recipe_detail.html')
     

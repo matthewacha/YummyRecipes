@@ -60,3 +60,11 @@ def replace_value_in_dict(the_dict, key, new_value):
         return dict_copy
     except KeyError:
         raise KeyError('The key does not exist in the_dict')
+
+
+def return_value_from_dict(dict_object, key):
+    """Returns the value at the said key and is able to raise KeyErrors"""
+    if check_type(dict_object, dict):
+        return dict_object[key]
+    else:
+        raise TypeError('dict_object should be a dictionary')

@@ -72,4 +72,31 @@ class RecipeCategoryTest(unittest.TestCase):
         # calling save more than once does not increase size of self.user.recipe_categories
         self.assertEqual(len(self.user.recipe_categories), length_of_user_categories)
 
+    def test_delete(self):
+        """RecipeCategory can be deleted"""
+        self.assertIsInstance(self.category, RecipeCategory)
+        self.category.save(self.db)
+        self.assertEqual(self.category, self.db.recipe_categories[self.category.key])
+        self.assertEqual(self.category, self.db.recipe_categories.get(self.category.key))
+        self.category.delete(self.db)
+        self.assertRaises(KeyError, utilities.return_value_from_dict,
+                          self.db.recipe_categories, self.category.key)
+        self.assertNotIn(self.category.key, self.db.recipe_category_keys)
+        self.assertNotIn(self.category.key, self.user.recipe_categories)
+        self.assertNotIn(self.category.name, self.db.recipe_category_name_key_map.keys())
+        # database parameter should be of type Database
+        self.assertRaises(TypeError, self.category.delete, 
+                          'string instead of Database object')
+        # calling delete more than once on same Database objec raises KeyError
+        self.assertRaises(KeyError, self.category.delete, self.db)
+
+    def test_set_name(self):
+        """ The name can be set with a new non-empty string value"""
+        pass
+    
+    def test_set_description(self):
+        """ The description can be set with a new non-empty string value"""
+        pass
+
+
 

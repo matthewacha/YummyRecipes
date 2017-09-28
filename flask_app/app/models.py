@@ -39,6 +39,7 @@ class Database:
         self._user_keys = []
         self.user_email_key_map = {}
         self._recipe_keys = []
+        self.recipe_name_key_map = {}
         self._recipe_category_keys = []
         self.recipe_category_name_key_map = {}
         self._recipe_step_keys = []
@@ -99,7 +100,40 @@ class Database:
         # check that variable against all the possible
         # Object types and locate the dict
         # then call del(approriate_dict[object_to_delete.key])
-        pass
+        object_type = type(object_to_delete)
+        object_dict = {}
+        object_keys_list = []
+        object_key_map = {}
+        object_mapper = ''
+        if object_type == RecipeCategory:
+            object_dict = self.recipe_categories
+            object_keys_list = self.recipe_category_keys
+            object_key_map = self.recipe_category_name_key_map
+            object_mapper = object_to_delete.name
+
+        elif object_type == Recipe:
+            object_dict = self.recipes
+            object_keys_list = self.recipe_keys
+            object_key_map = self.recipe_name_key_map
+            object_mapper = object_to_delete.name
+
+        elif object_type == RecipeStep:
+            object_dict = self.recipe_steps
+            object_keys_list = self.recipe_step_keys
+            # object_key_map = self.recipe_name_key_map
+            # object_mapper = object_to_delete.name            
+
+        else:
+            raise TypeError('%s type does not exist in database' % str(object_type)) 
+
+        try:
+            del(object_dict[object_to_delete.key])
+            object_keys_list.remove(object_to_delete.key)
+            if object_mapper:
+                del(object_key_map[object_mapper])
+        except KeyError:
+            raise KeyError('%s does not exist' % str(object_type))        
+
     
     def create_user(self, user_data):
         """Creates a new user and adds the user to self.users"""
@@ -140,13 +174,13 @@ class Database:
         Returns the RecipeCategory object if it exists
         or None if it doesn't
         """
-        pass
+        if check_type(recipe_category_key, int):
+            try:
+                recipe_category = self.recipe_categories[recipe_category_key]
+            except KeyError:
+                return None
+            return recipe_category
 
-    def get_all_categories_for_user(self, user_key):
-        """
-        Returns a list of the user's recipe categories 
-        """
-        pass
 
     def create_recipe(self, recipe_data):
         """
@@ -283,7 +317,14 @@ class RecipeCategory:
         # delete self's key from creator's set of categories
         # delete self's key from db's set of recipe category keys
         # then deletes itself (CASCADE) using db.delete_object()
-        pass
+        if check_type(database, Database):
+            try:
+                database.delete_object(self)
+                user = database.get_user(self.user)
+                if user:
+                    user.recipe_categories.remove(self.key)
+            except KeyError:
+                raise KeyError('The recipe category is non-existent in database')
 
     def edit_description(self, description):
         """Edit the description of this recipe category"""

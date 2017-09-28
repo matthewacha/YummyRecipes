@@ -64,6 +64,18 @@ class UtilitiesTests(unittest.TestCase):
         self.assertRaises(KeyError, utilities.replace_value_in_dict, the_dict=original_dict,
                           key='random', new_value='bar')
 
+    def test_return_value_from_dict(self):
+        """
+        return_value_from_dict should return the right value from a dict
+        return_value_from_dict should raise TypeError if dict_object passed is not a dict
+        return_value_from_dict shoule raise a KeyError if key passed doesnot exist
+        """
+        dict_object = {'foo': 'bar'}
+        value = utilities.return_value_from_dict(dict_object, 'foo')
+        self.assertEqual(dict_object['foo'], value)
+        self.assertRaises(TypeError, utilities.return_value_from_dict, 'string_not_dict', 'foo')
+        self.assertRaises(KeyError, utilities.return_value_from_dict, dict_object, 'non-existent-key')
+
 
 if __name__ == '__main__':
     unittest.main()

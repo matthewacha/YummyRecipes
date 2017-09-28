@@ -62,7 +62,7 @@
                         {% for recipe_category in recipe_categories %}
                         <tr>
                             <th scope="row">{{ loop.index }}.</th>
-                            <td class="col-10"><a href="{{ url_for('categories_detail', id=recipe_category.key) }}">{{ recipe_category.name }}</a></td>
+                            <td class="col-10"><a href="{{ url_for('categories_detail', category_key=recipe_category.key, user_key=user_details['key']) }}">{{ recipe_category.name }}</a></td>
                             {% if editable %}
                             <td class="col-1"><button class="btn btn-primary">Edit</button></td>
                             <td class="col-1"><button class="btn btn-danger">Delete</button></td>
