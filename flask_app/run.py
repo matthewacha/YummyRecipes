@@ -153,7 +153,6 @@ def categories_list(user_key):
                             user_details=user_details, editable=editable,
                             recipe_categories=recipe_categories)
 
-# Not yet implemented
 
 @app.route('/user/<int:user_key>/categories/<int:category_key>',
            methods=['GET', 'POST'])
@@ -318,13 +317,56 @@ def recipe_detail(user_key, category_key, recipe_key):
 
     return render_template('recipe_detail.html')
 
+
 @app.route('/user/<int:user_key>/categories/\
 <int:category_key>/recipes/<int:recipe_key>/steps/<int:step_key>', methods=['GET'])
 def step_detail(user_key, category_key, recipe_key, step_key):
     """
     Handles the DELETE and PUT of recipe steps but never renders to screen
     """
-    pass
+    error = None
+    editable = False
+    recipe_step = None
+    recipe = None
+    user = None
+    category = None
+    try:
+        recipe_step = db.get_recipe_step(step_key)
+        if recipe_step:
+            recipe = db.get_recipe(recipe_key)
+            category = db.get_recipe_category(category_key)
+            if category.key == recipe.category \
+            and user_key == category.user \
+            and recipe_step.recipe == recipe_key:
+                editable = user_key == controller.get_logged_in_user_key()
+
+    except (ValueError, KeyError, AttributeError):
+        error = "Recipe step does not exist"
+
+    if request.method == 'GET':
+        method = request.args.get('_method') or None
+        if editable and method == 'delete' and recipe_step:
+            # attempt to delete the recipe step
+            recipe_step.delete(db)
+            flash('Delete successful')
+            return redirect(url_for('recipe_detail', recipe_key=recipe_key,
+                            user_key=user_key, category_key=category_key))
+        
+        if editable and method == 'put' and recipe_step:
+            # get args data
+            success = None
+            description = request.args.get('text_content') or None
+            if text_content:
+                # update the text_content
+                recipe_step.set_text_content(str(text_content), db)
+                success = "Update successful"
+            flash(success)
+            return redirect(url_for('recipe_detail', user_key=user_key,
+                            category_key=category_key, recipe_key=recipe_key)) 
+    flash(error)
+    # redirect to recipe_detail page if accessed directly                        
+    return redirect(url_for('recipe_detail', user_key=user_key,
+                            category_key=category_key, recipe_key=recipe_key))           
     
 
 if __name__ == '__main__':

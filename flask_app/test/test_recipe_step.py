@@ -86,6 +86,45 @@ class RecipeStepTest(unittest.TestCase):
         # calling save more than once does not increase size of self.recipe.recipe_steps
         self.assertEqual(len(self.recipe.recipe_steps), length_of_recipe_steps)
 
+    def test_delete(self):
+        """RecipeStep object can be deleted"""
+        self.assertIsInstance(self.recipe_step, RecipeStep)
+        self.recipe_step.save(self.db)
+        self.assertEqual(self.recipe_step, self.db.recipe_steps[self.recipe_step.key])
+        self.assertEqual(self.recipe_step, self.db.recipe_steps.get(self.recipe_step.key))
+        self.recipe_step.delete(self.db)
+        self.assertRaises(KeyError, utilities.return_value_from_dict,
+                          self.db.recipe_steps, self.recipe_step.key)
+        self.assertNotIn(self.recipe_step.key, self.db.recipe_step_keys)
+        self.assertNotIn(self.recipe_step.key, self.recipe.recipe_steps)
+        # database parameter should be of type Database
+        self.assertRaises(TypeError, self.recipe_step.delete, 
+                          'string instead of Database object')
+        # calling delete more than once on same Database object raises KeyError
+        self.assertRaises(KeyError, self.recipe_step.delete, self.db)
+
+    def test_set_text_content(self):
+        """ The text_content can be set with a new non-empty string value"""
+        # try to set a new name
+        new_text = 'Do this instead'
+        # save to db
+        self.recipe_step.save(self.db)
+        self.recipe_step.set_text_content(new_text, self.db)
+        # the records in db should be updated also
+        self.assertEqual(self.recipe_step, self.db.recipe_steps[self.recipe_step.key])
+        self.assertIn(self.recipe_step.key, self.db.recipe_step_keys)
+        # assert that the new text content is set
+        self.assertEqual(new_text, self.recipe_step.text_content)
+        # try setting with a non string name
+        self.assertRaises(TypeError, self.recipe_step.set_text_content, 2, self.db)
+        # try setting with an empty string
+        self.assertRaises(ValueError, self.recipe_step.set_text_content, '', self.db)
+        # try setting with a space string 
+        self.assertRaises(ValueError, self.recipe_step.set_text_content, '  ', self.db)
+        # try setting with a database that is not a Database
+        self.assertRaises(TypeError, self.recipe_step.set_text_content, 'blah blah blah',
+                          'a string instead of database')
+
 
 if __name__ == '__main__':
     unittest.main()

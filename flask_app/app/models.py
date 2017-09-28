@@ -197,6 +197,18 @@ class Database:
                 return None
             return recipe
 
+    def get_recipe_step(self, recipe_step_key):
+        """
+        Returns the RecipeStep object if it exists
+        or None if it doesn't
+        """
+        if check_type(recipe_step_key, int):
+            try:
+                recipe_step = self.recipe_steps[recipe_step_key]
+            except KeyError:
+                return None
+            return recipe_step
+
 
 class User:
     """
@@ -486,25 +498,29 @@ class RecipeStep:
         self.text_content = text_content
 
     def delete(self, database):
-        """Deletes this RecipeStep"""
-        # remove self's key from set of keys of recipe steps in parent
-        # recipe
-        # remove self's key from the set of recipe_step_keys in db
-        # delete itself using db.delete_object()
-        pass
+        """Deleted the recipe step"""
+        if check_type(database, Database):
+            try:
+                database.delete_object(self)
+                recipe = database.get_recipe(self.recipe)
+                if recipe:
+                    recipe.recipe_steps.remove(self.key)
+            except KeyError:
+                raise KeyError('The recipe step is non-existent in database')
 
-    def edit_text_content(self):
-        """Edit the text_content"""
-        pass
+    def set_text_content(self, text_content, database):
+        """Edit the text_content of this recipe step"""
+        if check_type(text_content, str) and check_type(database, Database):
+            if len(text_content.strip()) == 0:
+                raise ValueError('text_content should be a non-empty string')
+            self.text_content = text_content
+            self.save(database)
 
     def save(self, database):
         """
         Save this object's key in parent recipe's set of recipe steps
         and in db
         """
-        # Add self.key in self.recipe.recipe_steps set
-        # Add self.key in db.recipe_step_keys set
-        # Add self to db.recipe_steps dict with key as self.key
         if check_type(database, Database):
             try:
                 recipe = database.recipes[self.recipe]
