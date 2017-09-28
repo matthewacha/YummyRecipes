@@ -105,23 +105,24 @@ class Database:
         object_keys_list = []
         object_key_map = {}
         object_mapper = ''
+        cascaded_objects = []
         if object_type == RecipeCategory:
             object_dict = self.recipe_categories
             object_keys_list = self.recipe_category_keys
             object_key_map = self.recipe_category_name_key_map
             object_mapper = object_to_delete.name
+            cascaded_objects = object_to_delete.get_all_recipes(self)
 
         elif object_type == Recipe:
             object_dict = self.recipes
             object_keys_list = self.recipe_keys
             object_key_map = self.recipe_name_key_map
             object_mapper = object_to_delete.name
+            cascaded_objects = object_to_delete.get_all_steps(self)
 
         elif object_type == RecipeStep:
             object_dict = self.recipe_steps
-            object_keys_list = self.recipe_step_keys
-            # object_key_map = self.recipe_name_key_map
-            # object_mapper = object_to_delete.name            
+            object_keys_list = self.recipe_step_keys   
 
         else:
             raise TypeError('%s type does not exist in database' % str(object_type)) 
@@ -131,6 +132,9 @@ class Database:
             object_keys_list.remove(object_to_delete.key)
             if object_mapper:
                 del(object_key_map[object_mapper])
+            # delete child componet objects
+            for cascaded_object in cascaded_objects:
+                self.delete_object(cascaded_object)
         except KeyError:
             raise KeyError('%s does not exist' % str(object_type))        
 
@@ -338,7 +342,7 @@ class RecipeCategory:
             self.save(database)
 
     def set_name(self, name, database):
-        """Edit the description of this recipe category"""
+        """Edit the name of this recipe category"""
         if check_type(name, str) and check_type(database, Database):
             if len(name.strip()) == 0:
                 raise ValueError('name should be a non-empty string')
@@ -375,10 +379,15 @@ class Recipe:
             self.name = name
         if check_type(description, str):
             self.description = description
-        # the category key. It does not change
+        # the category key.
         if check_type(category, int):
             self.category = category
-        self.recipe_steps = []
+        self._recipe_steps = []
+        
+    @property
+    def recipe_steps(self):
+        self._recipe_steps = list(set(self._recipe_steps))
+        return self._recipe_steps
 
     def change_category(self, new_category, database):
         """Changes the category of the recipe"""
@@ -387,20 +396,50 @@ class Recipe:
         pass
 
     def delete(self, database):
-        """Deleted the recipe"""
-        # deletes all child steps based on the self.recipe_steps list
-        # deletes self's key from category's set of recipes
-        # deletes self's key from db's set of recipe keys
-        # then deletes itself using db.delete_object()
-        pass
+        """Deleted the recipe and all its steps"""
+        if check_type(database, Database):
+            try:
+                database.delete_object(self)
+                category = database.get_recipe_category(self.category)
+                if category:
+                    category.recipes.remove(self.key)
+            except KeyError:
+                raise KeyError('The recipe is non-existent in database')
 
-    def set_name(self):
-        """Changes the name of the recipe"""
-        pass
+    def create_step(self, database, recipe_step_data):
+        """
+        Creates a new recipe step and
+        adds it to database.recipe_steps
+        """
+        if check_type(database, Database):
+            # get the last recipe_step key and add 1 
+            key = database.get_next_key(RecipeStep)
+            try:
+                # save recipe in database
+                self.save(database)
+                recipe_step = RecipeStep(**recipe_step_data, key=key, recipe=self.key)
+                recipe_step.save(database)
+            except TypeError:
+                return None
+            return recipe_step
 
-    def set_description(self):
-        """changes the description of the recipe"""
-        pass
+    def get_all_steps(self, database):
+        """returns a list of all steps that belong to self"""
+        return []
+
+    def set_name(self, name, database):
+        """Edit the name of this recipe"""
+        if check_type(name, str) and check_type(database, Database):
+            if len(name.strip()) == 0:
+                raise ValueError('name should be a non-empty string')
+            self.name = name
+            self.save(database)
+
+    def set_description(self, description, database):
+        """Edit the description of this recipe"""
+        if check_type(description, str) and check_type(database, Database):
+            self.description = description
+            self.save(database)
 
     def save(self, database):
         """
@@ -422,7 +461,16 @@ class Recipe:
 
 class RecipeStep:
     """Every recipe contains individual steps"""
-    def __init__(self, key, recipe, text_content):
+    def __init__(self, key,  text_content, recipe):
+        if check_type(key, int):
+            self.key = key
+        if check_type(text_content, str):
+            if len(text_content.strip()) == 0:
+                raise ValueError('text content should be a non-empty string')
+            self.text_content = text_content
+        # the recipe key. It does not change
+        if check_type(recipe, int):
+            self.recipe = recipe
         self.key = key
         self.recipe = recipe
         self.text_content = text_content
@@ -447,7 +495,16 @@ class RecipeStep:
         # Add self.key in self.recipe.recipe_steps set
         # Add self.key in db.recipe_step_keys set
         # Add self to db.recipe_steps dict with key as self.key
-        pass
+        if check_type(database, Database):
+            try:
+                recipe = database.recipes[self.recipe]
+                recipe.recipe_steps.append(self.key)
+            except KeyError:
+                raise KeyError('Recipe should be saved in db first')
+            # add self's key to set of db's recipe_step_keys
+            database.recipe_step_keys.append(self.key)
+            # Add self to db.recipe_steps dict with key as self.key
+            database.recipe_steps[self.key] = self
 
 
 # A global db
