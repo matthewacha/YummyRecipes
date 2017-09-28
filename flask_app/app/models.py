@@ -181,6 +181,18 @@ class Database:
                 return None
             return recipe_category
 
+    def get_recipe(self, recipe_key):
+        """
+        Returns the Recipe object if it exists
+        or None if it doesn't
+        """
+        if check_type(recipe_key, int):
+            try:
+                recipe = self.recipes[recipe_key]
+            except KeyError:
+                return None
+            return recipe
+
 
 class User:
     """
@@ -394,10 +406,6 @@ class Recipe:
         """
         Saves the recipe to the db and to the category's set of recipes
         """
-        # add self's key to the set of category's set of recipe keys
-        # add self's key to the set of recipe keys in the db
-        # Add self to db.recipes dict with key as self.key
-        # add self's key to set of recipe categories of user
         if check_type(database, Database):
             try:
                 category = database.recipe_categories[self.category]

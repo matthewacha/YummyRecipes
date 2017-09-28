@@ -109,6 +109,28 @@ class DatabaseTest(unittest.TestCase):
         # try to delete an object of a type that does not exist in database
         self.assertRaises(TypeError, self.db.delete_object, 2)
 
+    def test_get_recipe_category(self):
+        """A recipe category can be retrieved by key"""
+        # setup
+        self.user.save(self.db)
+        category = RecipeCategory(**self.category_data)
+        category.save(self.db)
+        recipe_data = {
+            'key': 1,
+            'name': 'breadcake',
+            'description': 'yummy',
+            'category': category.key,
+        }
+        recipe = Recipe(**recipe_data)
+        recipe.save(self.db)
+        # try retrieving the recipe
+        recipe_from_db = self.db.get_recipe(recipe.key)
+        self.assertEqual(recipe, recipe_from_db)
+        # try retrieving a non-existent recipe
+        self.assertIsNone(self.db.get_recipe(4))
+        # try using a non-int key
+        self.assertRaises(TypeError, self.db.get_recipe, 'string instead of int')
+
 
         
 

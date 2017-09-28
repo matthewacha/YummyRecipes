@@ -235,7 +235,8 @@ def categories_detail(user_key, category_key):
     return render_template('categories_detail.html')
 
 
-@app.route('/user/<int:user_key>/categories/<int:category_key>/recipes/<int:recipe_key>')
+@app.route('/user/<int:user_key>/categories/<int:category_key>/recipes/<int:recipe_key>',
+methods=['POST', 'GET'])
 def recipe_detail(user_key, category_key, recipe_key):
     """
     The page showing the details of a single recipe 
@@ -243,7 +244,86 @@ def recipe_detail(user_key, category_key, recipe_key):
     It also handles PUT and DELETE of the recipe
     It also handles POST for creation of new RecipeSteps
     """
+    error = None
+    editable = False
+    recipe_details = {}
+    recipe = None
+    steps = []
+    user = None
+    try:
+        recipe = db.get_recipe(recipe_key)
+        if recipe:
+            category = db.get_recipe_category(category_key)
+            if category.key == recipe.category and user_key == category.user:
+                editable = user_key == controller.get_logged_in_user_key()
+
+    except (ValueError, KeyError, AttributeError):
+        error = "Recipe does not exist" 
+
+    if request.method == 'GET':
+        method = request.args.get('_method') or None
+        if editable and method == 'delete' and recipe:
+            # attempt to delete the recipe
+            recipe.delete(db)
+            flash('Delete successful')
+            return redirect(url_for('categories_detail',
+                            user_key=user_key, category_key=category_key))
+        
+        if editable and method == 'put' and recipe:
+            # get args data
+            success = None
+            description = request.args.get('description') or None
+            name = request.args.get('name') or None
+            if name:
+                # update the name
+                recipe.set_name(str(name), db)
+                success = "Update successful"
+            if description:
+                # update the description
+                recipe.set_description(str(description), db)
+                success = "Update successful"
+            flash(success)
+            return redirect(url_for('categories_detail', user_key=user_key,
+                            category_key=category_key))            
+        
+        if not error:
+            recipe_details = dict(name=recipe.name,
+                            description=recipe.description, 
+                            key=recipe.key)
+            steps = list(recipe.get_all_steps(db))
+        return render_template('recipe_detail.html', 
+                recipe_details=recipe_details, user_key=user_key,
+                 editable=editable, error=error, steps=steps, category_key=category_key)
+
+    if request.method == 'POST' and not error:
+        # get form data to create a new step
+        try:
+            form_data = controller.process_form_data(dict(request.form))
+        except AttributeError:
+            error = "Invalid form input"
+            flash(error)
+    
+        if form_data:
+            try:
+                recipe.create_step(db, form_data)
+            except ValueError:
+                error = "Invalid form input for step"
+                flash(error)
+            else:
+                flash('Recipe step has been added successfully')
+
+            return redirect(url_for('recipe_detail', user_key=user_key,
+                                category_key=category_key, recipe_key=recipe_key))
+
     return render_template('recipe_detail.html')
+
+@app.route('/user/<int:user_key>/categories/\
+<int:category_key>/recipes/<int:recipe_key>/steps/<int:step_key>', methods=['GET'])
+def step_detail(user_key, category_key, recipe_key, step_key):
+    """
+    Handles the DELETE and PUT of recipe steps but never renders to screen
+    """
+    pass
     
 
 if __name__ == '__main__':
