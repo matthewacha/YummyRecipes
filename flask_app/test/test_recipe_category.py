@@ -92,11 +92,29 @@ class RecipeCategoryTest(unittest.TestCase):
 
     def test_set_name(self):
         """ The name can be set with a new non-empty string value"""
-        pass
+        # try to set a new name
+        new_name = 'foo'
+        self.category.set_name(new_name)
+        # assert that the new name is set
+        self.assertEqual(new_name, self.category.name)
+        # try setting with a non string name
+        self.assertRaises(TypeError, self.category.set_name, 2)
+        # try setting with an empty string
+        self.assertRaises(ValueError, self.category.set_name, '')
+        # try setting with a space string 
+        self.assertRaises(ValueError, self.category.set_name, '  ')
     
     def test_set_description(self):
         """ The description can be set with a new non-empty string value"""
-        pass
+        # try to set a new description
+        new_description = 'bar'
+        self.category.set_description(new_description)
+        # assert that the new description is set
+        self.assertEqual(new_description, self.category.description)
+        # try setting with a non string description
+        self.assertRaises(TypeError, self.category.set_description, 2)
 
 
+if __name__ == '__main__':
+    unittest.main()
 

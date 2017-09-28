@@ -326,13 +326,17 @@ class RecipeCategory:
             except KeyError:
                 raise KeyError('The recipe category is non-existent in database')
 
-    def edit_description(self, description):
+    def set_description(self, description):
         """Edit the description of this recipe category"""
-        pass
+        if check_type(description, str):
+            self.description = description
 
-    def edit_name(self, name):
+    def set_name(self, name):
         """Edit the description of this recipe category"""
-        pass
+        if check_type(name, str):
+            if len(name.strip()) == 0:
+                raise ValueError('name should be a non-empty string')
+            self.name = name
 
     def save(self, database):
         """Saves recipe category in db and in user"""
