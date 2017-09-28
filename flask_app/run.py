@@ -32,8 +32,10 @@ def signup():
     error = None
     form_data = None
     try:
-        form_data = controller.process_form_data(dict(request.form))
-    except AttributeError:
+        required_keys = ('first_name', 'last_name', 'email', 'password')
+        form_data = controller.process_form_data(dict(request.form),
+                                                 *required_keys)
+    except (AttributeError, ValueError):
         error = 'invalid request'
     if form_data:
         # get the data and attempt to create a new user
@@ -83,8 +85,9 @@ def signin():
     form_data = None
     # get request.form data
     try:
-        form_data = controller.process_form_data(dict(request.form))
-    except AttributeError:
+        required_keys = ('email', 'password')
+        form_data = controller.process_form_data(dict(request.form), *required_keys)
+    except (AttributeError, ValueError):
         error = "Invalid form input"
     
     if form_data:
@@ -139,9 +142,12 @@ def categories_list(user_key):
 
     if request.method == 'POST' and not error:
         # Get the form data
+        form_data = None
         try:
-            form_data = controller.process_form_data(dict(request.form))
-        except AttributeError:
+            required_keys = ('name',)
+            form_data = controller.process_form_data(dict(request.form),
+                                                     *required_keys)
+        except (AttributeError, ValueError):
             error = "Invalid form input"
         else:
             # Try to create a new recipe category and add it to recipe category list
@@ -168,6 +174,7 @@ def categories_detail(user_key, category_key):
     recipe_category = None
     recipes = []
     user = None
+    missing_required_field = False
     try:
         recipe_category = db.get_recipe_category(category_key)
         if recipe_category and user_key == recipe_category.user:
@@ -189,9 +196,15 @@ def categories_detail(user_key, category_key):
         if editable and method == 'put' and recipe_category:
             # get args data
             success = None
+            try:
+                form_data = controller.process_args_data(request.args, 'name')
+            except ValueError as e:
+                flash(str(e))
+                missing_required_field = True
+            
             description = request.args.get('description') or None
             name = request.args.get('name') or None
-            if name:
+            if name and not missing_required_field:
                 # update the name
                 recipe_category.set_name(str(name), db)
                 success = "Update successful"
@@ -213,9 +226,12 @@ def categories_detail(user_key, category_key):
 
     if request.method == 'POST' and not error:
         # get form data
+        form_data = None
         try:
-            form_data = controller.process_form_data(dict(request.form))
-        except AttributeError:
+            required_keys = ('name',)
+            form_data = controller.process_form_data(dict(request.form),
+                                                     *required_keys)
+        except (AttributeError, ValueError):
             error = "Invalid form input"
             flash(error)
     
@@ -231,7 +247,8 @@ def categories_detail(user_key, category_key):
             return redirect(url_for('categories_detail', user_key=user_key,
                                 category_key=category_key))
   
-    return render_template('categories_detail.html')
+    return redirect(url_for('categories_detail', user_key=user_key,
+                                category_key=category_key))
 
 
 @app.route('/user/<int:user_key>/categories/<int:category_key>/recipes/<int:recipe_key>',
@@ -250,6 +267,7 @@ def recipe_detail(user_key, category_key, recipe_key):
     steps = []
     user = None
     category = None
+    missing_required_field = False
     try:
         recipe = db.get_recipe(recipe_key)
         if recipe:
@@ -272,9 +290,15 @@ def recipe_detail(user_key, category_key, recipe_key):
         if editable and method == 'put' and recipe:
             # get args data
             success = None
+            try:
+                controller.process_args_data(request.args, 'name')
+            except ValueError as e:
+                flash(str(e))
+                missing_required_field = True
+
             description = request.args.get('description') or None
             name = request.args.get('name') or None
-            if name:
+            if name and not missing_required_field:
                 # update the name
                 recipe.set_name(str(name), db)
                 success = "Update successful"
@@ -297,11 +321,15 @@ def recipe_detail(user_key, category_key, recipe_key):
 
     if request.method == 'POST' and not error:
         # get form data to create a new step
+        form_data = None
         try:
-            form_data = controller.process_form_data(dict(request.form))
-        except AttributeError:
+            required_keys = ('text_content',)
+            form_data = controller.process_form_data(dict(request.form), *required_keys)
+        except (AttributeError, ValueError):
             error = "Invalid form input"
             flash(error)
+            return redirect(url_for('recipe_detail', user_key=user_key,
+                                category_key=category_key, recipe_key=recipe_key))
     
         if form_data:
             try:
@@ -315,7 +343,8 @@ def recipe_detail(user_key, category_key, recipe_key):
             return redirect(url_for('recipe_detail', user_key=user_key,
                                 category_key=category_key, recipe_key=recipe_key))
 
-    return render_template('recipe_detail.html')
+    return redirect(url_for('recipe_detail', user_key=user_key,
+                                category_key=category_key, recipe_key=recipe_key))
 
 
 @app.route('/user/<int:user_key>/categories/\
@@ -330,6 +359,7 @@ def step_detail(user_key, category_key, recipe_key, step_key):
     recipe = None
     user = None
     category = None
+    missing_required_field = False
     try:
         recipe_step = db.get_recipe_step(step_key)
         if recipe_step:
@@ -355,8 +385,14 @@ def step_detail(user_key, category_key, recipe_key, step_key):
         if editable and method == 'put' and recipe_step:
             # get args data
             success = None
+            try:
+                controller.process_args_data(request.args, 'text_content')
+            except ValueError as e:
+                flash(str(e))
+                missing_required_field = True
+
             text_content = request.args.get('text_content') or None
-            if text_content:
+            if text_content and not missing_required_field:
                 # update the text_content
                 recipe_step.set_text_content(str(text_content), db)
                 success = "Update successful"

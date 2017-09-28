@@ -47,9 +47,11 @@
     </nav>
     <div class="container">
     {% for message in get_flashed_messages() %}
+    {% if message %}
     <div class='row alert alert-info'>
       <div class='col-sm-12 text-center flash'>{{ message }}</div>
     </div>
+    {% endif %}
       {% endfor %}
 
       {% if error %}
