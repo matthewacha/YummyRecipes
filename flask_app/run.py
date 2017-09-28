@@ -155,7 +155,7 @@ def categories_list(user_key):
 
 # Not yet implemented
 
-@app.route('user/<int:user_key>/categories/<int:category_key>')
+@app.route('/user/<int:user_key>/categories/<int:category_key>')
 def categories_detail(user_key, category_key):
     """
     The page showing all availaible recipes in a given category (GET)
@@ -199,7 +199,8 @@ def categories_detail(user_key, category_key):
                 # update the description
                 recipe_category.set_description(str(description))
                 success = "Update successful"
-            flash(success)            
+            flash(success)
+            return redirect(url_for('categories_list', user_key=user_key))            
         
         if not error:
             recipe_category_details = dict(name=recipe_category.name,
