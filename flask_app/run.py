@@ -155,7 +155,8 @@ def categories_list(user_key):
 
 # Not yet implemented
 
-@app.route('/user/<int:user_key>/categories/<int:category_key>')
+@app.route('/user/<int:user_key>/categories/<int:category_key>',
+           methods=['GET', 'POST'])
 def categories_detail(user_key, category_key):
     """
     The page showing all availaible recipes in a given category (GET)
@@ -221,7 +222,7 @@ def categories_detail(user_key, category_key):
     
         if form_data:
             try:
-                recipe_category.create_recipe(**form_data, database=db)
+                recipe_category.create_recipe(db, form_data)
             except ValueError:
                 error = "Invalid form input for recipe"
                 flash(error)
@@ -234,8 +235,8 @@ def categories_detail(user_key, category_key):
     return render_template('categories_detail.html')
 
 
-@app.route('/categories/<int:id>/recipes/<int:recipe_id>')
-def recipe_detail(id, recipe_id):
+@app.route('/user/<int:user_key>/categories/<int:category_key>/recipes/<int:recipe_key>')
+def recipe_detail(user_key, category_key, recipe_key):
     """
     The page showing the details of a single recipe 
     including all steps (GET)

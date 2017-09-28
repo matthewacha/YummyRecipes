@@ -182,44 +182,6 @@ class Database:
             return recipe_category
 
 
-    def create_recipe(self, recipe_data):
-        """
-        Creates a new recipe and
-        adds it to self.recipes
-        """
-        # get the last recipe key and add 1 to it
-        # (use self.get_next_key(Recipe))
-        # create a new recipe with that key
-        # add it to the dict of recipes in self.recipes
-        # update the set of recipe keys (call the new recipe's save method)
-        pass
-
-    def get_recipe(self, recipe_key):
-        """
-        Returns the Recipe object if it exists
-        or None if it doesn't
-        """
-        pass
-
-    def create_recipe_step(self, recipe_data):
-        """
-        Creates a new recipe step and
-        adds it to self.recipe_steps
-        """
-        # get the last recipe step key and add 1 to it
-        # (use self.get_next_key(RecipeStep))
-        # create a new recipe step with that key
-        # call the recipe's save method
-        pass
-
-    def get_recipe_step(self, recipe_key):
-        """
-        Returns the RecipeStep object if it exists
-        or None if it doesn't
-        """
-        pass
-
-
 class User:
     """
     Any user who interfaces with the app falls in this category
