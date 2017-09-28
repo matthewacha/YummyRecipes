@@ -308,15 +308,15 @@ class RecipeCategory:
         if check_type(user, int):
             self.user = user
         # the list of child recipe keys
-        self.recipes = []
+        self._recipes = []
+
+    @property
+    def recipes(self):
+        self._recipes = list(set(self._recipes))
+        return self._recipes
 
     def delete(self, database):
         """Deletes this category of recipes and all recipes in it"""
-        # deletes all child recipes based on list of child recipes
-        # get the creator
-        # delete self's key from creator's set of categories
-        # delete self's key from db's set of recipe category keys
-        # then deletes itself (CASCADE) using db.delete_object()
         if check_type(database, Database):
             try:
                 database.delete_object(self)
@@ -325,6 +325,37 @@ class RecipeCategory:
                     user.recipe_categories.remove(self.key)
             except KeyError:
                 raise KeyError('The recipe category is non-existent in database')
+
+    def create_recipe(self, database, recipe_data):
+        """
+        Creates a new recipe and
+        adds it to database.recipes
+        """
+        if check_type(database, Database):
+            # get the last recipe key and add 1 
+            key = database.get_next_key(Recipe)
+            try:
+                # save category in database
+                self.save(database)
+                recipe = Recipe(**recipe_data, key=key, category=self.key)
+                recipe.save(database)
+            except TypeError:
+                return None
+            return recipe
+
+    def get_all_recipes(self, database):
+        """Returns all recipes under this category"""
+        if check_type(database, Database):
+            local_recipes = []
+            for recipe in self.recipes:
+                try:
+                    recipe_object = database.recipes[recipe]
+                except KeyError:
+                    self.recipes.remove(recipe)
+                else:
+                    local_recipes.append(recipe_object)
+
+            return local_recipes
 
     def set_description(self, description):
         """Edit the description of this recipe category"""
@@ -349,7 +380,6 @@ class RecipeCategory:
                 raise KeyError('User should be saved in db first')
             # add self's key to set of db's recipe_category_keys
             database.recipe_category_keys.append(self.key)
-            # remove duplication in the list above
             # Add self to db.recipe_categories dict with key as self.key
             database.recipe_categories[self.key] = self
             # Add self's name and key in db's recipe_category_name_key_map
@@ -360,14 +390,19 @@ class Recipe:
     """
     Each recipe are owned by a user and has a category
     """
-    def __init__(self, key, name, description, category, user):
-        self.key = key
-        self.name = name
-        self.description = description
-        # the key of the parent category
-        self.category = category
-        # list of keys of child steps
-        self.recipe_steps = set()
+    def __init__(self, key, name, description, category):
+        if check_type(key, int):
+            self.key = key
+        if check_type(name, str):
+            if len(name.strip()) == 0:
+                raise ValueError('name should be a non-empty string')
+            self.name = name
+        if check_type(description, str):
+            self.description = description
+        # the category key. It does not change
+        if check_type(category, int):
+            self.category = category
+        self.recipe_steps = []
 
     def change_category(self, new_category, database):
         """Changes the category of the recipe"""
@@ -383,11 +418,11 @@ class Recipe:
         # then deletes itself using db.delete_object()
         pass
 
-    def edit_name(self):
+    def set_name(self):
         """Changes the name of the recipe"""
         pass
 
-    def edit_description(self):
+    def set_description(self):
         """changes the description of the recipe"""
         pass
 
@@ -398,7 +433,19 @@ class Recipe:
         # add self's key to the set of category's set of recipe keys
         # add self's key to the set of recipe keys in the db
         # Add self to db.recipes dict with key as self.key
-        pass
+        # add self's key to set of recipe categories of user
+        if check_type(database, Database):
+            try:
+                category = database.recipe_categories[self.category]
+                category.recipes.append(self.key)
+            except KeyError:
+                raise KeyError('Category should be saved in db first')
+            # add self's key to set of db's recipe_keys
+            database.recipe_keys.append(self.key)
+            # Add self to db.recipes dict with key as self.key
+            database.recipes[self.key] = self
+            # Add self's name and key in db's recipe_name_key_map
+            database.recipe_name_key_map[self.name] = self.key
 
 
 class RecipeStep:

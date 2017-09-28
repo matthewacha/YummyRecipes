@@ -220,7 +220,7 @@ def categories_detail(user_key, category_key):
     
         if form_data:
             try:
-                recipe_category.add_recipe(**form_data, database=db)
+                recipe_category.create_recipe(**form_data, database=db)
             except ValueError:
                 error = "Invalid form input for recipe"
                 flash(error)

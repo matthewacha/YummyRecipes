@@ -29,6 +29,10 @@ class RecipeCategoryTest(unittest.TestCase):
             'user': self.user.key,
         }
         self.category = RecipeCategory(**self.category_data)
+        self.recipe_data = {
+            'name': 'Banana cake',
+            'description': 'yummy!',
+        }
 
     def test_name_is_mandatory(self):
         """
@@ -113,6 +117,45 @@ class RecipeCategoryTest(unittest.TestCase):
         self.assertEqual(new_description, self.category.description)
         # try setting with a non string description
         self.assertRaises(TypeError, self.category.set_description, 2)
+
+    def test_category_can_create_recipes(self):
+        """Category can create recipes under it"""
+        recipe = self.category.create_recipe(self.db, self.recipe_data)
+        self.assertIsInstance(recipe, Recipe)
+        self.assertIn(recipe.key, self.category.recipes)
+        self.assertIn(recipe.key, self.db.recipe_keys)
+        self.assertEqual(recipe, self.db.recipes[recipe.key])
+        self.assertIn(recipe.name, self.db.recipe_name_key_map.keys())
+        self.assertEqual(recipe.key,
+                          self.db.recipe_name_key_map[recipe.name])
+        self.assertRaises(TypeError, self.category.create_recipe, 
+                          'database should be a Database object', self.recipe_data)
+        del(self.recipe_data['name'])
+        recipe = self.category.create_recipe(self.db, self.recipe_data)
+        self.assertIsNone(recipe)
+
+    def test_get_all_recipes(self):
+        """The get_all_recipes function should be able to retrieve all recipes"""
+        names = ('Banana cake', 'fruit cake', 'icy cake')
+        # create three recipes
+        created_recipes = []
+        # incase a recipe is ever created in the Setup
+        key = 2
+        # save user in db
+        self.category.save(self.db)
+        for name in names:
+            new_data = utilities.replace_value_in_dict(self.recipe_data, 'name', name)
+            new_recipe = Recipe(**new_data, key=key, category=self.category.key)
+            new_recipe.save(self.db)
+            created_recipes.append(new_recipe)
+            key += 1
+
+        recipes = self.category.get_all_recipes(self.db)
+        self.assertIsInstance(recipes, list)
+        self.assertEqual(len(self.category.recipes), len(recipes))
+        self.assertListEqual(created_recipes, recipes)
+        self.assertRaises(TypeError, self.category.get_all_recipes,
+                          'expected Database object not string')
 
 
 if __name__ == '__main__':
