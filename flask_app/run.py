@@ -355,7 +355,7 @@ def step_detail(user_key, category_key, recipe_key, step_key):
         if editable and method == 'put' and recipe_step:
             # get args data
             success = None
-            description = request.args.get('text_content') or None
+            text_content = request.args.get('text_content') or None
             if text_content:
                 # update the text_content
                 recipe_step.set_text_content(str(text_content), db)
