@@ -160,6 +160,30 @@ class RecipeTest(unittest.TestCase):
         recipe_step = self.recipe.create_step(self.db, self.recipe_step_data)
         self.assertIsNone(recipe_step)
 
+    def test_get_all_steps(self):
+        """The get_all_steps function should be able to retrieve all steps"""
+        text_content_tuple = ('Get wheat flour', 'Put salt in water', 'Bake in oven')
+        # create three recipe steps
+        created_recipe_steps = []
+        # incase a recipe step is ever created in the Setup
+        key = 2
+        # save recipe in db
+        self.recipe.save(self.db)
+        for text_content in text_content_tuple:
+            new_data = utilities.replace_value_in_dict(self.recipe_step_data,
+                                                       'text_content', text_content)
+            new_recipe_step = RecipeStep(**new_data, key=key, recipe=self.recipe.key)
+            new_recipe_step.save(self.db)
+            created_recipe_steps.append(new_recipe_step)
+            key += 1
+
+        recipe_steps = self.recipe.get_all_steps(self.db)
+        self.assertIsInstance(recipe_steps, list)
+        self.assertEqual(len(self.recipe.recipe_steps), len(recipe_steps))
+        self.assertListEqual(created_recipe_steps, recipe_steps)
+        self.assertRaises(TypeError, self.recipe.get_all_steps,
+                          'expected Database object not string')
+
 
 if __name__ == '__main__':
     unittest.main()

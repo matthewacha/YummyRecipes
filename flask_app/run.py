@@ -250,6 +250,7 @@ def recipe_detail(user_key, category_key, recipe_key):
     recipe = None
     steps = []
     user = None
+    category = None
     try:
         recipe = db.get_recipe(recipe_key)
         if recipe:
@@ -292,8 +293,8 @@ def recipe_detail(user_key, category_key, recipe_key):
                             key=recipe.key)
             steps = list(recipe.get_all_steps(db))
         return render_template('recipe_detail.html', 
-                recipe_details=recipe_details, user_key=user_key,
-                 editable=editable, error=error, steps=steps, category_key=category_key)
+                recipe_details=recipe_details, user_key=user_key, category=category,
+                 editable=editable, error=error, steps=steps)
 
     if request.method == 'POST' and not error:
         # get form data to create a new step

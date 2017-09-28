@@ -425,7 +425,17 @@ class Recipe:
 
     def get_all_steps(self, database):
         """returns a list of all steps that belong to self"""
-        return []
+        if check_type(database, Database):
+            local_recipe_steps = []
+            for recipe_step in self.recipe_steps:
+                try:
+                    recipe_step_object = database.recipe_steps[recipe_step]
+                except KeyError:
+                    self.recipe_steps.remove(recipe_step)
+                else:
+                    local_recipe_steps.append(recipe_step_object)
+
+            return local_recipe_steps
 
     def set_name(self, name, database):
         """Edit the name of this recipe"""

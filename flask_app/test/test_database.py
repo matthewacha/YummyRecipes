@@ -140,17 +140,16 @@ class DatabaseTest(unittest.TestCase):
         recipe = Recipe(**self.recipe_data)
         recipe.save(self.db)
         # create step as child of recipe
-        # recipe_step = RecipeStep(**self.recipe_step_data)
-        # recipe_step.save(self.db)
+        recipe_step = RecipeStep(**self.recipe_step_data)
+        recipe_step.save(self.db)
         # delete recipe
-        ##################Test deleting categories####################
         self.db.delete_object(recipe)
         # assert that the recipe step object is not in self.db.recipe_steps
-        # self.assertRaises(KeyError, utilities.return_value_from_dict, self.db.recipe_steps, recipe_step.key)
+        self.assertRaises(KeyError, utilities.return_value_from_dict, self.db.recipe_steps, recipe_step.key)
         # assert that the recipe object is not in self.db.recipes
         self.assertRaises(KeyError, utilities.return_value_from_dict, self.db.recipes, recipe.key)
         # assert that the recipe step key is not in self.db.recipe_step_keys
-        # self.assertNotIn(recipe_step.key, self.db.recipe_step_keys)
+        self.assertNotIn(recipe_step.key, self.db.recipe_step_keys)
         # assert that the recipe key is not in self.db.recipe_keys
         self.assertNotIn(recipe.key, self.db.recipe_keys)
         # assert that the recipe name is not in self.db.recipe_name_key_map

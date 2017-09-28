@@ -161,7 +161,7 @@ class RecipeCategoryTest(unittest.TestCase):
         created_recipes = []
         # incase a recipe is ever created in the Setup
         key = 2
-        # save user in db
+        # save category in db
         self.category.save(self.db)
         for name in names:
             new_data = utilities.replace_value_in_dict(self.recipe_data, 'name', name)
