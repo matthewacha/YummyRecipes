@@ -97,8 +97,7 @@
                         <!-- modal-dialog -->
                     </div>
                     <!--#edit-category- -->
-                    {% endfor %}
-                    {% endif %}
+                    {% endfor %} {% endif %}
                 </div>
             </div>
             <div class="table-responsive">
@@ -107,10 +106,15 @@
                         {% for recipe_category in recipe_categories %}
                         <tr>
                             <th scope="row">{{ loop.index }}.</th>
-                            <td class="col-10"><a href="{{ url_for('categories_detail', category_key=recipe_category.key, user_key=user_details['key']) }}">{{ recipe_category.name }}:</a> {{ recipe_category.description[:65] }}...</td>
+                            <td class="col-10"><a href="{{ url_for('categories_detail', category_key=recipe_category.key, user_key=user_details['key']) }}">{{ recipe_category.name }}:</a>                                {{ recipe_category.description[:65] }}...</td>
                             {% if editable %}
                             <td class="col-1"><button type="button" data-toggle="modal" data-target="#edit-category-{{ loop.index }}" class="btn btn-primary">Edit</button></td>
-                            <td class="col-1"><button class="btn btn-danger">Delete</button></td>
+                            <td class="col-1">
+                                <form action="{{ url_for('categories_detail', category_key=recipe_category.key, user_key=user_details['key'])}}" method="GET">
+                                    <input type="hidden" name="_method" value="delete" />
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </td>
                             {% endif %}
                         </tr>
                         {% endfor %}

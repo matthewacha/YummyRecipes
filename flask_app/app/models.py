@@ -357,17 +357,19 @@ class RecipeCategory:
 
             return local_recipes
 
-    def set_description(self, description):
+    def set_description(self, description, database):
         """Edit the description of this recipe category"""
-        if check_type(description, str):
+        if check_type(description, str) and check_type(database, Database):
             self.description = description
+            self.save(database)
 
-    def set_name(self, name):
+    def set_name(self, name, database):
         """Edit the description of this recipe category"""
-        if check_type(name, str):
+        if check_type(name, str) and check_type(database, Database):
             if len(name.strip()) == 0:
                 raise ValueError('name should be a non-empty string')
             self.name = name
+            self.save(database)
 
     def save(self, database):
         """Saves recipe category in db and in user"""

@@ -193,11 +193,11 @@ def categories_detail(user_key, category_key):
             name = request.args.get('name') or None
             if name:
                 # update the name
-                recipe_category.set_name(str(name))
+                recipe_category.set_name(str(name), db)
                 success = "Update successful"
             if description:
                 # update the description
-                recipe_category.set_description(str(description))
+                recipe_category.set_description(str(description), db)
                 success = "Update successful"
             flash(success)
             return redirect(url_for('categories_list', user_key=user_key))            

@@ -98,25 +98,45 @@ class RecipeCategoryTest(unittest.TestCase):
         """ The name can be set with a new non-empty string value"""
         # try to set a new name
         new_name = 'foo'
-        self.category.set_name(new_name)
+        # save to db
+        self.category.save(self.db)
+        self.category.set_name(new_name, self.db)
+        # the records in db should be updated also
+        self.assertEqual(self.category, self.db.recipe_categories[self.category.key])
+        self.assertIn(self.category.key, self.db.recipe_category_keys)
+        self.assertIn(self.category.name, self.db.recipe_category_name_key_map.keys())
+        self.assertEqual(self.category.key, self.db.recipe_category_name_key_map[self.category.name])
         # assert that the new name is set
         self.assertEqual(new_name, self.category.name)
         # try setting with a non string name
-        self.assertRaises(TypeError, self.category.set_name, 2)
+        self.assertRaises(TypeError, self.category.set_name, 2, self.db)
         # try setting with an empty string
-        self.assertRaises(ValueError, self.category.set_name, '')
+        self.assertRaises(ValueError, self.category.set_name, '', self.db)
         # try setting with a space string 
-        self.assertRaises(ValueError, self.category.set_name, '  ')
+        self.assertRaises(ValueError, self.category.set_name, '  ', self.db)
+        # try setting with a database that is not a Databas
+        self.assertRaises(TypeError, self.category.set_name, 'new name',
+                          'a string instead of database')
     
     def test_set_description(self):
         """ The description can be set with a new non-empty string value"""
         # try to set a new description
         new_description = 'bar'
-        self.category.set_description(new_description)
+        # Save to self.db
+        self.category.save(self.db)
+        self.category.set_description(new_description, self.db)
+        self.assertEqual(self.category, self.db.recipe_categories[self.category.key])
+        self.assertIn(self.category.key, self.db.recipe_category_keys)
+        self.assertIn(self.category.name, self.db.recipe_category_name_key_map.keys())
+        self.assertEqual(self.category.key, self.db.recipe_category_name_key_map[self.category.name])
         # assert that the new description is set
         self.assertEqual(new_description, self.category.description)
         # try setting with a non string description
-        self.assertRaises(TypeError, self.category.set_description, 2)
+        self.assertRaises(TypeError, self.category.set_description, 2, self.db)
+        # the records in db should be updated also
+        # try setting with a database that is not a Databas
+        self.assertRaises(TypeError, self.category.set_description, 'new description',
+                          'a string instead of database')
 
     def test_category_can_create_recipes(self):
         """Category can create recipes under it"""
