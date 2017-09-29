@@ -4,7 +4,12 @@ A web app to save and share food recipes we love.
 ## About
 This project is part of the [Andela Fellowship](https://andela.com/) Self Learning Clinic Curriculum.
 
-The YummyRecipes app is a web application meant to help users save and share recipes of their favourite food. 
+The YummyRecipes app is a web application meant to help users save and share recipes of their favourite food.
+
+## Interesting Feature
+This web app is built using Flask without a database per se. All data is stored in memory (thus the need for only one worker on the server). 
+
+**Fun fact:** A **'Database'** has been implemented within it using python data structures and types. Find the implementation in /flask_app/app/models.py. And yes! It feels like one, it acts like one, it should thus be one. It is a database! 
 
 
 ## Dependencies
