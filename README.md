@@ -1,4 +1,4 @@
-# YummyRecipes [![Build Status](https://travis-ci.org/Tinitto/YummyRecipes.svg?branch=master)](https://travis-ci.org/Tinitto/YummyRecipes) [![Coverage Status](https://coveralls.io/repos/github/Tinitto/YummyRecipes/badge.svg)](https://coveralls.io/github/Tinitto/YummyRecipes)
+# YummyRecipes [![Build Status](https://travis-ci.org/Tinitto/YummyRecipes.svg?branch=master)](https://travis-ci.org/Tinitto/YummyRecipes) [![Coverage Status](https://coveralls.io/repos/github/Tinitto/YummyRecipes/badge.svg)](https://coveralls.io/github/Tinitto/YummyRecipes)  [![Code Climate](https://codeclimate.com/github/Tinitto/YummyRecipes/badges/gpa.svg)](https://codeclimate.com/github/Tinitto/YummyRecipes)
 A web app to save and share food recipes we love.
 
 ## About
