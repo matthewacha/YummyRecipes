@@ -11,6 +11,7 @@ class Config(object):
     DEBUG = False
     SECRET = os.getenv('SECRET')
     CSRF_ENABLED = True
+    SECRET_KEY = os.getenv('SECRET_KEY')
 
 
 class DevelopmentConfig(Config):
@@ -19,6 +20,7 @@ class DevelopmentConfig(Config):
     """
     DEBUG = True
     SECRET = "development secret"
+    SECRET_KEY = "development key"
 
 
 class TestingConfig(Config):
@@ -28,6 +30,7 @@ class TestingConfig(Config):
     DEBUG = True
     SECRET = "development secret"
     TESTING = True
+    SECRET_KEY = "development key"
 
 
 class StagingConfig(Config):

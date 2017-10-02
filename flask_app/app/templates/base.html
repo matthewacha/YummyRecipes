@@ -29,18 +29,38 @@
                     <li class="nav-item{% if active == 'home' %} active{% endif %}">
                         <a class="nav-link" href="{{ url_for('index') }}">Home{% if active == 'home' %} <span class="sr-only">(current)</span>{% endif %}</a>
                     </li>
+                    {% if session['user_key'] %}
                     <li class="nav-item{% if active == 'categories_list' %} active{% endif %}">
-                        <a class="nav-link" href="{{ url_for('categories_list') }}">Recipes{% if active == 'categories_list' %} <span class="sr-only">(current)</span>{% endif %}</a>
+                        <a class="nav-link" href="{{ url_for('categories_list', user_key=session['user_key']) }}">Recipes{% if active == 'categories_list' %} <span class="sr-only">(current)</span>{% endif %}</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Logout</a>
+                        <a class="nav-link" href="{{ url_for('signout') }}">Logout</a>
                     </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Login</a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
-    {% block content %}
-    {% endblock %}
+    <div class="container">
+    {% for message in get_flashed_messages() %}
+    {% if message %}
+    <div class='row alert alert-info'>
+      <div class='col-sm-12 text-center flash'>{{ message }}</div>
+    </div>
+    {% endif %}
+      {% endfor %}
+
+      {% if error %}
+      <div class='row alert alert-danger'>
+        <div class='col-sm-12 text-center flash'>{{ error }}</div>
+      </div>
+      {% endif %}
+    </div>
+    {% block content %} {% endblock %}
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="{{ url_for('static', filename='js/jquery-3.2.1.slim.min.js')}}"></script>
     <script src="{{ url_for('static', filename='js/popper.min.js')}}"></script>
