@@ -141,6 +141,13 @@ class Database:
     
     def create_user(self, user_data):
         """Creates a new user and adds the user to self.users"""
+        # try to refuse duplicate users
+        try:
+            if self.user_email_key_map[user_data['email']]:
+                raise ValueError('Duplicate user')
+        except KeyError:
+            # if the key does not exist, pass
+            pass
         user_key = self.get_next_key(User)
         try:
             user = User(**user_data, key=user_key)
