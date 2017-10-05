@@ -112,7 +112,16 @@
                             {% if editable %}
                             <td class="col-1"><a href="{{ url_for('recipe_detail', user_key=user_key, category_key=recipe_category_details['key'], recipe_key=recipe.key) }}"><button type="button" class="btn btn-secondary">Add steps</button></a></td>
                             <td class="col-1"><button type="button" data-toggle="modal" data-target="#edit-recipe-{{ loop.index }}" class="btn btn-primary">Edit</button></td>
+<<<<<<< HEAD
                             {% endif %} {% endif %}
+=======
+                            <td class="col-1">
+                                <form action="{{ url_for('recipe_detail', category_key=recipe_category_details['key'], user_key=user_key, recipe_key=recipe.key) }}" method="GET">
+                                    <input type="hidden" name="_method" value="delete" />
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </td>
+>>>>>>> delete-recipe
                         </tr>
                         {% endfor %}
                         </tr>
