@@ -123,6 +123,7 @@ def users():
             'key': user.key,
             'first_name': user.first_name,
             'last_name': user.last_name,
+            'categories': len(user.recipe_categories)
             })
     return render_template('users.html', users=user_details, active='users')
 
@@ -288,8 +289,13 @@ def recipe_detail(user_key, category_key, recipe_key):
         recipe = db.get_recipe(recipe_key)
         if recipe:
             category = db.get_recipe_category(category_key)
-            if category.key == recipe.category and user_key == category.user:
-                editable = user_key == controller.get_logged_in_user_key()
+            if category.key == recipe.category:
+                if user_key == category.user:
+                    editable = user_key == controller.get_logged_in_user_key()
+                if not editable and recipe.private:
+                    flash('Recipe is private')
+                    return redirect(url_for('categories_detail',
+                            user_key=user_key, category_key=category_key))
 
     except (ValueError, KeyError, AttributeError):
         error = "Recipe does not exist" 
