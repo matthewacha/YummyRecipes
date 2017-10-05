@@ -191,10 +191,22 @@ class DatabaseTest(unittest.TestCase):
         # try using a non-int key
         self.assertRaises(TypeError, self.db.get_recipe_step, 'string instead of int')
 
+    def test_can_get_all_users(self):
+        """A list of all registered users can be returned"""        
+        emails = ('jane@example.com', 'paul@example.com', 'tom@example.com')
+        # create three users
+        created_users = []
+        # save user in db
+        # self.user.save(self.db)
+        for email in emails:
+            new_data = utilities.replace_value_in_dict(self.user_data, 'email', email)
+            user = self.db.create_user(new_data)
+            created_users.append(user)
 
-        
-
-
+        users = self.db.get_all_users()
+        self.assertIsInstance(users, list)
+        self.assertEqual(len(self.db.users), len(users))
+        self.assertListEqual(created_users, users)
 
     # key should not be negative or zero
     # key should not exist already

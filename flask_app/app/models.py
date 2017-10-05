@@ -172,6 +172,10 @@ class Database:
             except KeyError:
                 return None
             return self.get_user(user_key)
+
+    def get_all_users(self):
+        """Returns all the users of the application"""
+        return list(self.users.values())
         
     def get_recipe_category(self, recipe_category_key):
         """
@@ -382,7 +386,7 @@ class Recipe:
     """
     Each recipe are owned by a user and has a category
     """
-    def __init__(self, key, name, description, category):
+    def __init__(self, key, name, description, category, private=True):
         if check_type(key, int):
             self.key = key
         if check_type(name, str):
@@ -391,10 +395,13 @@ class Recipe:
             self.name = name
         if check_type(description, str):
             self.description = description
+        if check_type(private, bool):
+            self.private = private
         # the category key.
         if check_type(category, int):
             self.category = category
         self._recipe_steps = []
+
         
     @property
     def recipe_steps(self):
@@ -406,6 +413,12 @@ class Recipe:
         # add self's key to new_category's recipe list
         # remove self's key from old category's recipe list
         pass
+
+    def set_private(self, private, database):
+        """Sets the privacy of the recipe"""
+        if check_type(private, bool) and check_type(database, Database):
+            self.private = private
+            self.save(database)
 
     def delete(self, database):
         """Deleted the recipe and all its steps"""

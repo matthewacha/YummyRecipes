@@ -112,13 +112,29 @@ def signin():
     return redirect(url_for('index'))
 
 
-@app.route('/user/<int:user_key>/categories', methods=['GET', 'POST'])
+# get a route for all users available
+@app.route('/users/')
+def users():
+    """See all users available"""
+    users = db.get_all_users()
+    user_details = []
+    for user in users:
+        user_details.append({
+            'key': user.key,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            })
+    return render_template('users.html', users=user_details, active='users')
+
+
+@app.route('/users/<int:user_key>/categories', methods=['GET', 'POST'])
 def categories_list(user_key):
     """
     The page showing all availaible categories of recipes
     GET: Show all user's categories
     POST: Create a new category
     """
+    # Add privacy stuff here
     active = 'categories_list'
     error = None
     editable = False
@@ -160,7 +176,7 @@ def categories_list(user_key):
                             recipe_categories=recipe_categories)
 
 
-@app.route('/user/<int:user_key>/categories/<int:category_key>',
+@app.route('/users/<int:user_key>/categories/<int:category_key>',
            methods=['GET', 'POST'])
 def categories_detail(user_key, category_key):
     """
@@ -251,7 +267,7 @@ def categories_detail(user_key, category_key):
                                 category_key=category_key))
 
 
-@app.route('/user/<int:user_key>/categories/<int:category_key>/recipes/<int:recipe_key>',
+@app.route('/users/<int:user_key>/categories/<int:category_key>/recipes/<int:recipe_key>',
 methods=['POST', 'GET'])
 def recipe_detail(user_key, category_key, recipe_key):
     """
@@ -347,7 +363,7 @@ def recipe_detail(user_key, category_key, recipe_key):
                                 category_key=category_key, recipe_key=recipe_key))
 
 
-@app.route('/user/<int:user_key>/categories/\
+@app.route('/users/<int:user_key>/categories/\
 <int:category_key>/recipes/<int:recipe_key>/steps/<int:step_key>', methods=['GET'])
 def step_detail(user_key, category_key, recipe_key, step_key):
     """

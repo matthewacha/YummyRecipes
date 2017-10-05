@@ -108,7 +108,9 @@
                             <th scope="row">{{ loop.index }}.</th>
                             <td class="col-11"><a href="{{ url_for('recipe_detail', user_key=user_key, category_key=recipe_category_details['key'], recipe_key=recipe.key) }}">{{ recipe.name }}</a>:
                                 {{ recipe.description[:65] }}...</td>
+                                {% if editable %}
                             <td class="col-1"><button type="button" data-toggle="modal" data-target="#edit-recipe-{{ loop.index }}" class="btn btn-primary">Edit</button></td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                         </tr>

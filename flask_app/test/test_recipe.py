@@ -184,6 +184,26 @@ class RecipeTest(unittest.TestCase):
         self.assertRaises(TypeError, self.recipe.get_all_steps,
                           'expected Database object not string')
 
+    def test_set_privacy(self):
+        """The privacy of the recipe can be set"""
+        # save the recipe
+        self.recipe.save(self.db)
+        # check the default privacy is True
+        self.assertTrue(self.recipe.private)
+        # raises a type error if set privacy not a bool
+        recipe_data = utilities.replace_value_in_dict(self.recipe_data, 'key', 2)
+        self.assertRaises(TypeError, Recipe, **recipe_data, private=4)
+        recipe = Recipe(**recipe_data, private=False)
+        recipe.save(self.db)
+        self.assertEqual(recipe, self.db.recipes[recipe.key])
+        self.assertFalse(recipe.private)
+        # Set the privacy and check it that it has changed
+        recipe.set_private(True, self.db)
+        self.assertEqual(recipe, self.db.recipes[recipe.key])
+        self.assertTrue(recipe.private)
+        # try setting with a database that is not a Databas
+        self.assertRaises(TypeError, self.recipe.set_private, False,
+                          'a string instead of database')
 
 if __name__ == '__main__':
     unittest.main()

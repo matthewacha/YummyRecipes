@@ -29,6 +29,9 @@
                     <li class="nav-item{% if active == 'home' %} active{% endif %}">
                         <a class="nav-link" href="{{ url_for('index') }}">Home{% if active == 'home' %} <span class="sr-only">(current)</span>{% endif %}</a>
                     </li>
+                    <li class="nav-item{% if active == 'users' %} active{% endif %}">
+                        <a class="nav-link" href="{{ url_for('users') }}">Users{% if active == 'users' %} <span class="sr-only">(current)</span>{% endif %}</a>
+                    </li>
                     {% if session['user_key'] %}
                     <li class="nav-item{% if active == 'categories_list' %} active{% endif %}">
                         <a class="nav-link" href="{{ url_for('categories_list', user_key=session['user_key']) }}">Recipes{% if active == 'categories_list' %} <span class="sr-only">(current)</span>{% endif %}</a>
