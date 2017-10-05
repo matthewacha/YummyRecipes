@@ -104,6 +104,7 @@
                         <tr>
                             <th scope="row">{{ loop.index }}.</th>
                             <td class="col-10">{{ step.text_content }}</td>
+                            {% if editable %}
                             <td class="col-1"><button type="button" data-toggle="modal" data-target="#edit-step-{{ loop.index }}" class="btn btn-primary">Edit</button></td>
                             <td class="col-1">
                                 <form action="{{ url_for('step_detail', user_key=user_key, category_key=category.key, recipe_key=recipe_details['key'], step_key=step.key) }}"
@@ -112,6 +113,7 @@
                                     <button type="submit" class="btn btn-danger">Delete</button>
                                 </form>
                             </td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                     </tbody>
