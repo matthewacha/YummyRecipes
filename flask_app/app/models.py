@@ -144,7 +144,7 @@ class Database:
         # try to refuse duplicate users
         try:
             if self.user_email_key_map[user_data['email']]:
-                raise ValueError('Duplicate user')
+                raise ValueError('User already exists')
         except KeyError:
             # if the key does not exist, pass
             pass
