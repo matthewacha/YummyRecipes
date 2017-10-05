@@ -106,9 +106,15 @@
                         {% for recipe in recipes %}
                         <tr>
                             <th scope="row">{{ loop.index }}.</th>
-                            <td class="col-11"><a href="{{ url_for('recipe_detail', user_key=user_key, category_key=recipe_category_details['key'], recipe_key=recipe.key) }}">{{ recipe.name }}</a>:
+                            <td class="col-10"><a href="{{ url_for('recipe_detail', user_key=user_key, category_key=recipe_category_details['key'], recipe_key=recipe.key) }}">{{ recipe.name }}</a>:
                                 {{ recipe.description[:65] }}...</td>
                             <td class="col-1"><button type="button" data-toggle="modal" data-target="#edit-recipe-{{ loop.index }}" class="btn btn-primary">Edit</button></td>
+                            <td class="col-1">
+                                <form action="{{ url_for('recipe_detail', category_key=recipe_category_details['key'], user_key=user_key, recipe_key=recipe.key) }}" method="GET">
+                                    <input type="hidden" name="_method" value="delete" />
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                         </tr>
