@@ -41,8 +41,9 @@ def signup():
         # get the data and attempt to create a new user
         try:
             user = db.create_user(form_data)            
-        except ValueError:
-            error = 'Invalid form input'
+        except ValueError as e:
+            # error = 'Invalid form input'
+            error = str(e)
         else:
             # if new user is created, log them in
             try:
